@@ -8,6 +8,36 @@ A powerful automated system for qualifying sales leads based on website and soci
 
 The Lead Qualification Agent is an AI-powered system designed to automate the identification of high-potential leads for ReelsMaker. The system analyzes business websites and Instagram profiles to determine their likelihood to convert and succeed with the product, helping sales teams prioritize their efforts on the most promising prospects.
 
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/your-organization/lead-qualification-agent.git
+
+# Navigate to project directory
+cd lead-qualification-agent
+
+# Install dependencies
+npm install
+```
+
+## Environment Setup
+
+Create a `.env` file in the root directory with the following variables:
+
+```
+FIRECRAWL_API_KEY=your_firecrawl_api_key
+OPENAI_API_KEY=your_openai_api_key
+```
+
+## Development
+
+### Running in Development
+
+```bash
+npm run start
+```
+
 ## Features
 
 - Automatic data collection from websites and Instagram profiles
@@ -48,36 +78,6 @@ As shown in the architecture diagram, the system consists of two main components
 - Posting frequency and consistency
 - Current use of Reels vs. other content types
 - Engagement metrics (likes, comments, shares)
-
-## Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-organization/lead-qualification-agent.git
-
-# Navigate to project directory
-cd lead-qualification-agent
-
-# Install dependencies
-npm install
-```
-
-## Environment Setup
-
-Create a `.env` file in the root directory with the following variables:
-
-```
-FIRECRAWL_API_KEY=your_firecrawl_api_key
-OPENAI_API_KEY=your_openai_api_key
-```
-
-## Development
-
-### Running in Development
-
-```bash
-npm run start
-```
 
 ## Usage
 
