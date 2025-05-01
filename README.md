@@ -71,6 +71,14 @@ FIRECRAWL_API_KEY=your_firecrawl_api_key
 OPENAI_API_KEY=your_openai_api_key
 ```
 
+## Development
+
+### Running in Development
+
+```bash
+npm run start
+```
+
 ## Usage
 
 ```javascript
@@ -97,23 +105,18 @@ Leads are evaluated on a 1-5 scale based on:
 - **Warm Lead**: 2.5-3.9
 - **Cold Lead**: <2.5
 
-## Development
+## Potential Challenges and Considerations
 
-### Prerequisites
+### Data Accessibility and Quality
 
-- Node.js v16+
-- NPM or Yarn
+- Limited or private Instagram profiles
+- Website access restrictions
+- Incomplete or outdated business information
+- Mitigation strategies for missing data points
 
-### Running in Development
+### Industry Diversity
 
-```bash
-npm run start
-```
-
-## License
-
-MIT License
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+- Varied content requirements across industries
+- Industry-specific qualification adjustments
+- Calibration for emerging use cases
+- Handling of edge cases and unique business models

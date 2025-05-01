@@ -211,6 +211,3 @@ export async function runDataEnrichment(url) {
     console.log("\n");
   }
 }
-
-const url = "https://www.arthurpottery.com/tasse-c%C3%A9ramique-artisanale"
-runDataEnrichment(url);
