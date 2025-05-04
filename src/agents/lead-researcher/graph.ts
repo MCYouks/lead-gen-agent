@@ -1,10 +1,13 @@
 import { START, END, StateGraph, Annotation } from "@langchain/langgraph";
-import { InputState, OutputState, OverallState } from "./state";
-import { EXTRACTION_PROMPT, INFO_PROMPT, REFLECTION_PROMPT, QUERY_WRITER_PROMPT } from "./prompt";
 import { ChatAnthropic } from "@langchain/anthropic";
 import { RunnableConfig } from "@langchain/core/runnables";
 import { z } from "zod";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { tavily as tavilyClient } from "@tavily/core";
+
+import { InputState, OutputState, OverallState } from "./state";
+import { EXTRACTION_PROMPT, INFO_PROMPT, REFLECTION_PROMPT, QUERY_WRITER_PROMPT } from "./prompt";
+import { Configuration } from "./configuration";
 
 /**
  * LLMs
@@ -16,13 +19,21 @@ const llm = new ChatAnthropic({
 })
 
 /**
+ * Search
+ */
+const tavily = tavilyClient({
+  apiKey: process.env.TAVILY_API_KEY,
+})
+
+
+/**
  * Generate search queries based on the user input and extraction schema.
  */
 const generateQueries = async (state: typeof OverallState.State, config: RunnableConfig): Promise<typeof OverallState.Update> => {
   // Get configuration
-  // const configurable = Configuration.from_runnable_config(config)
-  // const maxSearchQueries = configurable.max_search_queries
-  const maxSearchQueries = 5
+  const configurable = Configuration.fromRunnableConfig(config)
+  const maxSearchQueries = configurable.maxSearchQueries
+
 
   // Setup structured output
   const queriesSchema = z.object({ 
@@ -54,7 +65,21 @@ const generateQueries = async (state: typeof OverallState.State, config: Runnabl
  * 2. Deduplicates and formats the search results
  */
 const researchCompany = async (state: typeof OverallState.State, config: RunnableConfig): Promise<typeof OverallState.Update> => {
+  // Get configuration
+  const configurable = Configuration.fromRunnableConfig(config)
+  const maxSearchResults = configurable.maxSearchResults
 
+  // Execute all searches concurrently
+  const searchDocuments = await Promise.all(state.search_queries.map(async (query) => {
+    return await tavily.search(query, {
+      maxResults: maxSearchResults,
+      includeRawContent: true,
+      topic: "general"
+    })
+  }))
+
+  // Return the deduplicated documents
+  return { }
 }
 
 const routeFromReflexion = (state: typeof OverallState.State) => {
