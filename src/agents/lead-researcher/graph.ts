@@ -1,15 +1,17 @@
 import { START, END, StateGraph, Annotation } from "@langchain/langgraph";
+import { InputState, OutputState, OverallState } from "./state";
 
-const StateAnnotation = Annotation.Root({
-  is_satisfactory: Annotation<boolean>(),
-})
 
-const routeFromReflexion = (state: typeof StateAnnotation.State) => {
+const routeFromReflexion = (state: typeof OverallState.State) => {
   if (state.is_satisfactory) return END
   return "research_company"
 }
 
-const workflow = new StateGraph(StateAnnotation)
+const workflow = new StateGraph({
+  stateSchema: OverallState,
+  input: InputState,
+  output: OutputState,
+})
 /**
  * Create nodes
  */
