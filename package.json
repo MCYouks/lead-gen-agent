@@ -1,7 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "start": "dotenvx run -- tsx src/index.ts"
+    "start": "dotenvx run -- tsx src/index.ts",
+    "dev": "npx @langchain/langgraph-cli dev"
   },
   "devDependencies": {
     "typescript": "^5.8.3"
@@ -10,6 +11,7 @@
     "@dotenvx/dotenvx": "^1.41.0",
     "@langchain/core": "^0.3.49",
     "@langchain/langgraph": "^0.2.67",
+    "@langchain/langgraph-cli": "^0.0.30",
     "@langchain/langgraph-supervisor": "^0.0.11",
     "@langchain/langgraph-swarm": "^0.0.3",
     "@langchain/openai": "^0.5.7",
