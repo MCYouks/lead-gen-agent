@@ -3,7 +3,7 @@ import { createSupervisor } from "@langchain/langgraph-supervisor";
 import { createReactAgent } from "@langchain/langgraph/prebuilt";
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
-import FirecrawlApp from '@mendable/firecrawl-js';
+import FirecrawlApp, { ScrapeResponse } from '@mendable/firecrawl-js';
 
 // Initialize Firecrawl app with API key
 const firecrawl = new FirecrawlApp({
@@ -109,7 +109,7 @@ function extractWebsiteFromInstagramBio(username) {
   return "https://example-from-instagram.com";
 }
 
-function extractInstagramUsername(scrapeResult) {
+function extractInstagramUsername(scrapeResponse: ScrapeResponse) {
   // In a real implementation, this would extract Instagram username from website
   // Look for Instagram links in social media section, footer, etc.
   // For now, returning a placeholder
@@ -117,7 +117,7 @@ function extractInstagramUsername(scrapeResult) {
 }
 
 // Functions to analyze website data
-function analyzeWebsiteStructure(scrapeResult) {
+function analyzeWebsiteStructure(scrapeResponse: ScrapeResponse) {
   // Analyze website structure based on HTML and navigation
   return {
     hasNavigationMenu: true,
@@ -126,7 +126,7 @@ function analyzeWebsiteStructure(scrapeResult) {
   };
 }
 
-function extractValueProposition(scrapeResult) {
+function extractValueProposition(scrapeResponse: ScrapeResponse) {
   // Extract value proposition from website content
   return {
     clear: true,
@@ -135,7 +135,7 @@ function extractValueProposition(scrapeResult) {
   };
 }
 
-function checkHighQualityImages(scrapeResult) {
+function checkHighQualityImages(scrapeResponse: ScrapeResponse) {
   // Check for high-quality product images
   return {
     hasHighQualityImages: true,
@@ -144,7 +144,7 @@ function checkHighQualityImages(scrapeResult) {
   };
 }
 
-function checkProductDescriptions(scrapeResult) {
+function checkProductDescriptions(scrapeResponse: ScrapeResponse) {
   // Check for clear product descriptions
   return {
     hasClearDescriptions: true,
@@ -153,7 +153,7 @@ function checkProductDescriptions(scrapeResult) {
   };
 }
 
-function detectEcommerceFeatures(scrapeResult) {
+function detectEcommerceFeatures(scrapeResponse: ScrapeResponse) {
   // Detect e-commerce functionality
   return {
     hasEcommerce: true,
@@ -161,7 +161,7 @@ function detectEcommerceFeatures(scrapeResult) {
   };
 }
 
-function extractSocialMediaLinks(scrapeResult) {
+function extractSocialMediaLinks(scrapeResponse: ScrapeResponse) {
   // Extract social media links
   return {
     hasInstagramLink: true,

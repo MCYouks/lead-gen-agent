@@ -13,6 +13,7 @@
     "@langchain/langgraph-supervisor": "^0.0.11",
     "@langchain/langgraph-swarm": "^0.0.3",
     "@langchain/openai": "^0.5.7",
-    "@mendable/firecrawl-js": "^1.24.0"
+    "@mendable/firecrawl-js": "^1.24.0",
+    "dedent": "^1.6.0"
   }
 }

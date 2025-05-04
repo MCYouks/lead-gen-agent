@@ -1,122 +1,96 @@
-# Lead Qualification Agent
+# Lead Generation Agent
 
-A powerful automated system for qualifying sales leads based on website and social media analysis.
-
-![Lead Qualification System Architecture](./src/assets/image.png)
-
-## Overview
-
-The Lead Qualification Agent is an AI-powered system designed to automate the identification of high-potential leads for ReelsMaker. The system analyzes business websites and Instagram profiles to determine their likelihood to convert and succeed with the product, helping sales teams prioritize their efforts on the most promising prospects.
-
-## Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-organization/lead-qualification-agent.git
-
-# Navigate to project directory
-cd lead-qualification-agent
-
-# Install dependencies
-npm install
-```
-
-## Environment Setup
-
-Create a `.env` file in the root directory with the following variables:
-
-```
-FIRECRAWL_API_KEY=your_firecrawl_api_key
-OPENAI_API_KEY=your_openai_api_key
-```
-
-## Development
-
-### Running in Development
-
-```bash
-npm run start
-```
+This is a TypeScript implementation of a LangGraph-based agent for researching companies and extracting structured information.
 
 ## Features
 
-- Automatic data collection from websites and Instagram profiles
-- Comprehensive analysis of online presence
-- Cross-referencing between web and social media presence
-- AI-powered evaluation of lead potential
-- Detailed reporting on qualification criteria
+- Uses Tavily for web search
+- Employs Claude 3.5 Sonnet for reasoning and structured output generation
+- Implements a multi-step workflow with LangGraph:
+  1. Query generation
+  2. Web research
+  3. Information extraction
+  4. Reflection and optional additional research
 
-## System Architecture
+## Project Structure
 
-As shown in the architecture diagram, the system consists of two main components:
+```
+lead-gen-agent/
+├── agent/
+│   ├── configuration.ts  # Configuration options
+│   ├── prompts.ts        # System prompts
+│   ├── state.ts          # State definitions
+│   └── utils.ts          # Utility functions
+├── lead-gen-agent.ts     # Main agent implementation
+├── package.json
+├── tsconfig.json
+└── README.md
+```
 
-1. **Data Enrichment (Supervisor Agent)**
+## Setup
 
-   - Takes a URL input (website or Instagram profile)
-   - Determines appropriate scraper to use first
-   - Cross-references between platforms when links are discovered
+1. Install dependencies:
 
-2. **Lead Scoring**
-   - Evaluates collected data against qualification criteria
-   - Generates a comprehensive lead score
+   ```
+   npm install
+   ```
 
-## Data Collection Points
+2. Configure API keys:
 
-### Website Analysis
+   - Tavily API key
+   - Claude API key
 
-- Website structure and navigation
-- Core value proposition
-- Presence of high-quality product images
-- Clear product descriptions
-- E-commerce functionality
-- Links to social media company pages
-
-### Instagram Analysis
-
-- Profile existence and completeness
-- Follower count and growth rate
-- Posting frequency and consistency
-- Current use of Reels vs. other content types
-- Engagement metrics (likes, comments, shares)
+3. Build the project:
+   ```
+   npm run build
+   ```
 
 ## Usage
 
-```javascript
-import { runDataEnrichment } from "./src/agents/lead-qualification";
+The agent can be used to research companies and extract structured information based on a predefined schema.
 
-// Run with a website URL
-runDataEnrichment("https://example.com");
+```typescript
+import { graph } from "./lead-gen-agent";
 
-// Or run with an Instagram profile URL
-runDataEnrichment("https://www.instagram.com/example_profile");
+// Define extraction schema
+const extractionSchema = {
+  company_name: "string",
+  industry: "string",
+  founded_year: "number",
+  headquarters: "string",
+  revenue: "string",
+  employee_count: "number",
+  products_services: ["string"],
+  competitors: ["string"],
+  key_people: [
+    {
+      name: "string",
+      position: "string",
+    },
+  ],
+  recent_news: ["string"],
+};
+
+// Configure and run the agent
+const result = await graph.invoke(
+  {
+    company: "Acme Corporation",
+    user_notes: "Looking for information about their recent expansion plans",
+    extraction_schema: extractionSchema,
+  },
+  {
+    configurable: {
+      maxSearchQueries: 5,
+      maxSearchResults: 10,
+      maxReflectionSteps: 3,
+      includeSearchResults: true,
+    },
+  }
+);
+
+console.log(result.info);
 ```
 
-## Scoring System
+## Note
 
-Leads are evaluated on a 1-5 scale based on:
-
-- Instagram Presence (30%)
-- Website/Product Quality (40%)
-- Business Category Fit (30%)
-
-### Lead Classification
-
-- **Hot Lead**: 4-5
-- **Warm Lead**: 2.5-3.9
-- **Cold Lead**: <2.5
-
-## Potential Challenges and Considerations
-
-### Data Accessibility and Quality
-
-- Limited or private Instagram profiles
-- Website access restrictions
-- Incomplete or outdated business information
-- Mitigation strategies for missing data points
-
-### Industry Diversity
-
-- Varied content requirements across industries
-- Industry-specific qualification adjustments
-- Calibration for emerging use cases
-- Handling of edge cases and unique business models
+This implementation uses up-to-date versions of langchain-js and langgraph-js as of March 2025. The API signatures may change in future releases.
