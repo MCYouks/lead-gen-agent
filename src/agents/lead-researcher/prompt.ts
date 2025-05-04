@@ -1,32 +1,44 @@
 import dedent from 'dedent';
 
-export const EXTRACTION_PROMPT = dedent`
+type ExtractionPromptConfig = {
+  info: string
+  notes: string
+}
+
+export const EXTRACTION_PROMPT = ({ info, notes }: ExtractionPromptConfig) => dedent`
   Your task is to take notes gathered from web research and extract them into the following schema.
 
   <schema>
-  {info}
+  ${info}
   </schema>
 
   Here are all the notes from research:
 
   <web_research_notes>
-  {notes}
+  ${notes}
   </web_research_notes>
 `;
 
-export const QUERY_WRITER_PROMPT = dedent`
+type QueryWriterPromptConfig = {    
+  company: string
+  info: string
+  max_search_queries: number
+  user_notes: string
+}
+
+export const QUERY_WRITER_PROMPT = ({ company, info, max_search_queries, user_notes }: QueryWriterPromptConfig) => dedent`
   You are a search query generator tasked with creating targeted search queries to gather specific company information.
 
-  Here is the company you are researching: {company}
+  Here is the company you are researching: ${company}
 
-  Generate at most {max_search_queries} search queries that will help gather the following information:
+  Generate at most ${max_search_queries} search queries that will help gather the following information:
 
   <schema>
-  {info}
+  ${info}
   </schema>
 
   <user_notes>
-  {user_notes}
+  ${user_notes}
   </user_notes>
 
   Your query should:
