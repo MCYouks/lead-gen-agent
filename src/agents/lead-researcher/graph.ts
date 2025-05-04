@@ -8,6 +8,8 @@ import { tavily as tavilyClient } from "@tavily/core";
 import { InputState, OutputState, OverallState } from "./state";
 import { EXTRACTION_PROMPT, INFO_PROMPT, REFLECTION_PROMPT, QUERY_WRITER_PROMPT } from "./prompt";
 import { Configuration } from "./configuration";
+import { deduplicateSources, formatSources } from "./utils";
+import { StringOutputParser } from "@langchain/core/output_parsers";
 
 /**
  * LLMs
@@ -78,8 +80,32 @@ const researchCompany = async (state: typeof OverallState.State, config: Runnabl
     })
   }))
 
-  // Return the deduplicated documents
-  return { }
+  // Deduplicate and format search results
+  const deduplicatedDocuments = deduplicateSources(searchDocuments)
+  const sources = formatSources(deduplicatedDocuments, { 
+    maxTokensPerSource: 1000,
+    includeRawContent: true,
+  })
+
+  // Generate structured notes relevant to the extraction schema
+  const prompt = INFO_PROMPT({
+    company: state.company_name,
+    info: JSON.stringify(state.extraction_schema, null, 2),
+    user_notes: JSON.stringify(state.user_notes, null, 2),
+    sources: sources,
+  })
+
+  const result = await llm.pipe(new StringOutputParser()).invoke(prompt)
+
+  const stateUpdate: typeof OverallState.Update = {
+    completed_notes: [result],
+  }
+
+  if (configurable.includeSearchResults) {
+    stateUpdate.search_results = deduplicatedDocuments
+  }
+  
+  return stateUpdate
 }
 
 const routeFromReflexion = (state: typeof OverallState.State) => {

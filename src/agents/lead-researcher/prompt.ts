@@ -51,24 +51,30 @@ export const QUERY_WRITER_PROMPT = ({ company, info, max_search_queries, user_no
   Create a focused query that will maximize the chances of finding schema-relevant information.
 `;
 
-export const INFO_PROMPT = dedent`
-  You are doing web research on a company, {company}. 
+type InfoPromptConfig = {
+  company: string
+  info: string
+  user_notes: string
+  sources: string
+}
 
+export const INFO_PROMPT = ({ company, info, user_notes, sources }: InfoPromptConfig) => dedent`
+  You are doing web research on a company, ${company}. 
   The following schema shows the type of information we're interested in:
 
   <schema>
-  {info}
+  ${info}
   </schema>
 
   You have just scraped website content. Your task is to take clear, organized notes about the company, focusing on topics relevant to our interests.
 
   <Website contents>
-  {content}
+  ${sources}
   </Website contents>
 
   Here are any additional notes from the user:
   <user_notes>
-  {user_notes}
+  ${user_notes}
   </user_notes>
 
   Please provide detailed research notes that:

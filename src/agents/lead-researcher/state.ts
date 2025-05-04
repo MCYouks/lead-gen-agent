@@ -67,7 +67,10 @@ const PrivateState = Annotation.Root({
    /**
     * Notes from completed research related to the schema
     */
-   completed_notes: Annotation<Record<string, any>[]>(),
+   completed_notes: Annotation<string[]>({
+    default: () => [],
+    reducer: (oldList, newNote) => oldList.concat(newNote),
+   }),
    
    /**
     * True if all required fields are well populated, False otherwise
