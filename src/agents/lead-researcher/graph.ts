@@ -5,6 +5,7 @@ import { ChatAnthropic } from "@langchain/anthropic";
 import { RunnableConfig } from "@langchain/core/runnables";
 import { z } from "zod";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+
 /**
  * LLMs
  */
@@ -45,6 +46,17 @@ const generateQueries = async (state: typeof OverallState.State, config: Runnabl
   return { search_queries: queries }
 }
 
+/**
+ * Execute a multi-step web search and information extraction process.
+ * 
+ * This function performs the following steps:
+ * 1. Executes concurrent web searches using the Tavily API
+ * 2. Deduplicates and formats the search results
+ */
+const researchCompany = async (state: typeof OverallState.State, config: RunnableConfig): Promise<typeof OverallState.Update> => {
+
+}
+
 const routeFromReflexion = (state: typeof OverallState.State) => {
   if (state.is_satisfactory) return END
   return "research_company"
@@ -59,7 +71,7 @@ const workflow = new StateGraph({
  * Create nodes
  */
 .addNode("generate_queries", generateQueries)
-.addNode("research_company", () => ({}))
+.addNode("research_company", researchCompany)
 .addNode("gather_notes_extract_schema", () => ({}))
 .addNode("reflexion", () => ({}))
 /**
