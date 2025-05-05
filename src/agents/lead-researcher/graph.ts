@@ -1,13 +1,12 @@
 import { START, END, StateGraph, Annotation } from "@langchain/langgraph";
 import { ChatAnthropic } from "@langchain/anthropic";
-import { RunnableConfig } from "@langchain/core/runnables";
 import { z } from "zod";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { tavily as tavilyClient } from "@tavily/core";
 
 import { InputState, OutputState, OverallState } from "./state";
 import { EXTRACTION_PROMPT, INFO_PROMPT, REFLECTION_PROMPT, QUERY_WRITER_PROMPT } from "./prompt";
-import { Configuration } from "./configuration";
+import { Configuration, ConfigurationAnnotation } from "./configuration";
 import { deduplicateSources, formatAllNotes, formatSources } from "./utils";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
@@ -31,10 +30,9 @@ const tavily = tavilyClient({
 /**
  * Generate search queries based on the user input and extraction schema.
  */
-const generateQueries = async (state: typeof OverallState.State, config: RunnableConfig): Promise<typeof OverallState.Update> => {
+const generateQueries = async (state: typeof OverallState.State, config: Configuration): Promise<typeof OverallState.Update> => {
   // Get configuration
-  const configurable = Configuration.fromRunnableConfig(config)
-  const maxSearchQueries = configurable.maxSearchQueries
+  const maxSearchQueries = config.configurable?.maxSearchQueries ?? 3
 
 
   // Setup structured output
@@ -66,10 +64,9 @@ const generateQueries = async (state: typeof OverallState.State, config: Runnabl
  * 1. Executes concurrent web searches using the Tavily API
  * 2. Deduplicates and formats the search results
  */
-const researchCompany = async (state: typeof OverallState.State, config: RunnableConfig): Promise<typeof OverallState.Update> => {
+const researchCompany = async (state: typeof OverallState.State, config: Configuration): Promise<typeof OverallState.Update> => {
   // Get configuration
-  const configurable = Configuration.fromRunnableConfig(config)
-  const maxSearchResults = configurable.maxSearchResults
+  const maxSearchResults = config.configurable?.maxSearchResults
 
   // Execute all searches concurrently
   const searchDocuments = await Promise.all(state.search_queries.map(async (query) => {
@@ -101,7 +98,7 @@ const researchCompany = async (state: typeof OverallState.State, config: Runnabl
     completed_notes: [result],
   }
 
-  if (configurable.includeSearchResults) {
+  if (config.configurable?.includeSearchResults) {
     stateUpdate.search_results = deduplicatedDocuments
   }
   
@@ -111,7 +108,7 @@ const researchCompany = async (state: typeof OverallState.State, config: Runnabl
 /**
  * Gather notes from the web search and extract the schema fields.
  */
-const gatherNotesExtractSchema = async (state: typeof OverallState.State, config: RunnableConfig): Promise<typeof OverallState.Update> => {
+const gatherNotesExtractSchema = async (state: typeof OverallState.State): Promise<typeof OverallState.Update> => {
   // Format all notes
   const notes = formatAllNotes(state.completed_notes)
 
@@ -139,7 +136,7 @@ const gatherNotesExtractSchema = async (state: typeof OverallState.State, config
 /**
  * Reflect on the extracted information and generate search queries to find missing information.
  */
-const reflection = async (state: typeof OverallState.State, config: RunnableConfig): Promise<typeof OverallState.Update> => {
+const reflection = async (state: typeof OverallState.State): Promise<typeof OverallState.Update> => {
   // Create reflection schema
   const reflectionSchema = z.object({
     is_satisfactory: z.boolean().describe("True if all required fields are well populated, False otherwise"),
@@ -175,15 +172,19 @@ const reflection = async (state: typeof OverallState.State, config: RunnableConf
 /**
  * Route the graph based on the reflection output.
  */
-const routeFromReflection = (state: typeof OverallState.State, config: RunnableConfig) => {
-  // Get configuration
-  const configurable = Configuration.fromRunnableConfig(config)
-
+const routeFromReflection = (state: typeof OverallState.State, config: Configuration) => {
   // If we have satisfactory results, end the process
-  if (state.is_satisfactory) return END
+  if (state.is_satisfactory) {
+    return END
+  }
+
+  // Get configuration
+  const maxReflectionSteps = config.configurable?.maxReflectionSteps ?? 0
 
   // If results aren't satisfactory but we haven't hit max steps, continue research
-  if (state.reflection_steps_taken <= configurable.maxReflectionSteps) return "research_company"
+  if (state.reflection_steps_taken <= maxReflectionSteps) {
+    return "research_company"
+  }
 
   // If we've exceeded max steps, end even if not satisfactory
   return END
@@ -193,7 +194,7 @@ const workflow = new StateGraph({
   stateSchema: OverallState,
   input: InputState,
   output: OutputState,
-})
+}, ConfigurationAnnotation)
 
 /**
  * Create nodes
