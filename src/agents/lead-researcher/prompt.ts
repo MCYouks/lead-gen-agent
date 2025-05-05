@@ -87,18 +87,23 @@ export const INFO_PROMPT = ({ company, info, user_notes, sources }: InfoPromptCo
   Remember: Don't try to format the output to match the schema - just take clear notes that capture all relevant information.
 `;
 
-export const REFLECTION_PROMPT = dedent`
+type ReflectionPromptConfig = {   
+  schema: string
+  info: string
+}
+
+export const REFLECTION_PROMPT = ({ schema, info }: ReflectionPromptConfig) => dedent`
   You are a research analyst tasked with reviewing the quality and completeness of extracted company information.
 
   Compare the extracted information with the required schema:
 
   <Schema>
-  {schema}
+  ${schema}
   </Schema>
 
   Here is the extracted information:
   <extracted_info>
-  {info}
+  ${info}
   </extracted_info>
 
   Analyze if all required fields are present and sufficiently populated. Consider:
