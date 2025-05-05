@@ -2,7 +2,7 @@
   "type": "module",
   "scripts": {
     "start": "dotenvx run -- tsx src/index.ts",
-    "dev": "npx @langchain/langgraph-cli dev"
+    "dev": "dotenvx run -- npx @langchain/langgraph-cli dev"
   },
   "devDependencies": {
     "typescript": "^5.8.3"
