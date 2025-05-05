@@ -8,7 +8,7 @@ import { tavily as tavilyClient } from "@tavily/core";
 import { InputState, OutputState, OverallState } from "./state";
 import { EXTRACTION_PROMPT, INFO_PROMPT, REFLECTION_PROMPT, QUERY_WRITER_PROMPT } from "./prompt";
 import { Configuration } from "./configuration";
-import { deduplicateSources, formatSources } from "./utils";
+import { deduplicateSources, formatAllNotes, formatSources } from "./utils";
 import { StringOutputParser } from "@langchain/core/output_parsers";
 
 /**
@@ -108,6 +108,34 @@ const researchCompany = async (state: typeof OverallState.State, config: Runnabl
   return stateUpdate
 }
 
+/**
+ * Gather notes from the web search and extract the schema fields.
+ */
+const gatherNotesExtractSchema = async (state: typeof OverallState.State, config: RunnableConfig): Promise<typeof OverallState.Update> => {
+  // Format all notes
+  const notes = formatAllNotes(state.completed_notes)
+
+  // Extract schema fields
+  const systemPrompt = EXTRACTION_PROMPT({
+    info: JSON.stringify(state.extraction_schema, null, 2),
+    notes: notes,
+  })
+
+  // Setup model with structured output
+  const model = llm.withStructuredOutput(state.extraction_schema)
+
+  // Invoke model
+  const result = await model.invoke([
+    new SystemMessage(systemPrompt),
+    new HumanMessage("Produce a structured output from these notes."),
+  ])
+
+  // Return updated state
+  return {
+    info: result,
+  }
+}
+
 const routeFromReflexion = (state: typeof OverallState.State) => {
   if (state.is_satisfactory) return END
   return "research_company"
@@ -123,7 +151,7 @@ const workflow = new StateGraph({
  */
 .addNode("generate_queries", generateQueries)
 .addNode("research_company", researchCompany)
-.addNode("gather_notes_extract_schema", () => ({}))
+.addNode("gather_notes_extract_schema", gatherNotesExtractSchema)
 .addNode("reflexion", () => ({}))
 /**
  * Create edges
