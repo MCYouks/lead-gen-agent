@@ -1,18 +1,23 @@
 {
   "type": "module",
   "scripts": {
-    "start": "dotenvx run -- tsx src/index.ts"
+    "start": "dotenvx run -- tsx src/index.ts",
+    "dev": "dotenvx run -- npx @langchain/langgraph-cli dev"
   },
   "devDependencies": {
     "typescript": "^5.8.3"
   },
   "dependencies": {
     "@dotenvx/dotenvx": "^1.41.0",
+    "@langchain/anthropic": "^0.3.20",
     "@langchain/core": "^0.3.49",
     "@langchain/langgraph": "^0.2.67",
+    "@langchain/langgraph-cli": "^0.0.30",
     "@langchain/langgraph-supervisor": "^0.0.11",
     "@langchain/langgraph-swarm": "^0.0.3",
     "@langchain/openai": "^0.5.7",
-    "@mendable/firecrawl-js": "^1.24.0"
+    "@mendable/firecrawl-js": "^1.24.0",
+    "@tavily/core": "^0.5.1",
+    "zod-to-json-schema": "^3.24.5"
   }
 }

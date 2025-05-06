@@ -1,0 +1,5 @@
+{
+  "graphs": {
+    "lead_researcher": "./src/agents/lead-researcher/graph.ts:graph"
+  }
+}
